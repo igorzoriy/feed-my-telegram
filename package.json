@@ -4,8 +4,8 @@
   "private": true,
   "description": "Publish RSS/Twitter/Facebook entities to Telegram",
   "scripts": {
-    "dev": "ts-node index.ts",
-    "lint": "tslint -c tslint.json '**/*.ts'",
+    "dev": "ts-node src/index.ts",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Igor Zoriy <me@igorzoriy.com>",
