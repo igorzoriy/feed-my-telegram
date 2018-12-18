@@ -5,7 +5,7 @@ export class RssFeeder {
     private uri: string
     private client: TelegramClient
     private channelId: string
-    private timerId: number
+    private timerId: NodeJS.Timeout
     private parser
     private lastGuid: string = ""
 
