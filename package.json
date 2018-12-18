@@ -2,7 +2,7 @@
   "name": "feed-my-telegram",
   "version": "1.0.0",
   "private": true,
-  "description": "Publish RSS/Twitter/Facebook entities to Telegram",
+  "description": "This service checks RSS/Facebook/Twitter sources and publish new entities to Telegram",
   "scripts": {
     "dev": "ts-node src/index.ts",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
