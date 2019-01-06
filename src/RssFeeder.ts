@@ -1,18 +1,30 @@
+import * as Keyv from "keyv"
 import { TelegramClient } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
 
 export class RssFeeder {
-    private uri: string
-    private client: TelegramClient
     private channelId: string
-    private timerId: NodeJS.Timeout
+    private client: TelegramClient
     private parser
-    private lastGuid: string = ""
+    private storage: Keyv
+    private timerId: NodeJS.Timeout
+    private uri: string
 
-    constructor({ uri, client, channelId }: { uri: string, client: TelegramClient, channelId: string }) {
+    constructor({
+        uri,
+        client,
+        channelId,
+        storage,
+    }: {
+        uri: string,
+        client: TelegramClient,
+        channelId: string,
+        storage: Keyv,
+    }) {
         this.uri = uri
         this.client = client
         this.channelId = channelId
+        this.storage = storage
 
         this.parser = new Parser()
     }
@@ -27,17 +39,14 @@ export class RssFeeder {
 
     private tick() {
         this.parser.parseURL(this.uri).then(({ items }) => {
-            let i = items.findIndex((item) => this.lastGuid === item.guid)
-            if (i < 0) {
-                i = 0
-            } else {
-                i++
-            }
+            items.reverse().forEach(async (item) => {
+                if (await this.storage.get(item.guid)) {
+                    return
+                }
 
-            for (; i < items.length; i++) {
-                this.client.sendMessage(this.channelId, items[i].title)
-                this.lastGuid = items[i].guid
-            }
+                await this.client.sendMessage(this.channelId, item.title)
+                await this.storage.set(item.guid, Date.now())
+            })
         })
     }
 }

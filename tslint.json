@@ -7,7 +7,8 @@
         "semicolon": [
             true,
             "never"
-        ]
+        ],
+        "no-console": false
     },
     "linterOptions": {
         "exclude": [

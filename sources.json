@@ -1,12 +1,7 @@
 [
     {
         "type": "rss",
-        "uri": "https://habr.com/rss/feed/posts/all/5cdefeee2ea0b5687dcfae0cbf44f7e3/?hl=ru&fl=ru",
-        "channelId": "-1001166301659"
-    },
-    {
-        "type": "rss",
-        "uri": "https://habr.com/rss/best/?hl=ru&fl=ru",
-        "channelId": "-1001411183554"
+        "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=15",
+        "channelId": "-1001279212606"
     }
 ]

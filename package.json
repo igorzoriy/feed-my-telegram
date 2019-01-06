@@ -15,7 +15,10 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
+    "@keyv/sqlite": "^2.0.0",
+    "@types/keyv": "^3.1.0",
     "dotenv-extended": "^2.3.0",
+    "keyv": "^3.1.0",
     "messaging-api-telegram": "^0.7.11",
     "rss-parser": "^3.5.4",
     "tslint": "^5.11.0"
