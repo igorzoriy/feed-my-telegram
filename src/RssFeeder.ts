@@ -2,7 +2,6 @@ import * as Keyv from "keyv"
 import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
 import { Logger } from "winston"
-import { sleep } from "./utils"
 
 interface IRssItem {
     title: string
@@ -10,12 +9,14 @@ interface IRssItem {
 }
 
 export class RssFeeder {
+    private ERROR_DELAY = 60000
+
     private channelId: string
     private client: TelegramClient
     private logger: Logger
     private parser
     private storage: Keyv
-    private timerId: NodeJS.Timeout
+    private timerId: NodeJS.Timer
     private uri: string
 
     constructor({
@@ -40,11 +41,13 @@ export class RssFeeder {
     }
 
     public async start() {
-        this.timerId = setInterval(this.tick.bind(this), 1000)
+        this.logger.info(`RssFeeder - start with uri: ${this.uri}`)
+        this.tick()
     }
 
     public stop() {
         clearInterval(this.timerId)
+        this.logger.info(`RssFeeder - stop`)
     }
 
     private logError(message: string) {
@@ -58,36 +61,32 @@ export class RssFeeder {
             items = feed.items
         } catch (ex) {
             this.logError(`${ex} - ${this.uri}`)
-            this.stop()
-            await sleep(60000)
-            this.start()
-            return
+            return this.nextTick(this.ERROR_DELAY)
         }
 
-        items.reverse().forEach(async (item) => {
+        for (let i = items.length - 1; i >= 0; i--) {
+            const item = items[i]
+            let result: SendMessageResponse
+
             try {
                 if (await this.storage.get(item.guid)) {
-                    return
+                    continue
                 }
-            } catch (ex) {
-                this.logError(ex)
-                return
-            }
-
-            let result: SendMessageResponse
-            try {
                 result = await this.client.sendMessage(this.channelId, item.title)
-            } catch (ex) {
-                this.logError(ex)
-                return
-            }
-
-            try {
                 await this.storage.set(item.guid, Date.now())
             } catch (ex) {
-                this.client.deleteMessage(this.channelId, result.message_id)
                 this.logError(ex)
+                if (result.message_id) {
+                    this.client.deleteMessage(this.channelId, result.message_id)
+                }
+                return this.nextTick()
             }
-        })
+        }
+
+        this.nextTick()
+    }
+
+    private nextTick(delay: number = 1000) {
+        this.timerId = setTimeout(this.tick.bind(this), delay)
     }
 }
