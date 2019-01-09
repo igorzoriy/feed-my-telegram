@@ -1,3 +1,4 @@
+import * as got from "got"
 import * as Keyv from "keyv"
 import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
@@ -5,7 +6,10 @@ import { Logger } from "winston"
 
 interface IRssItem {
     title: string
+    content: string
+    contentSnippet: string
     guid: string
+    link: string
 }
 
 export class RssFeeder {
@@ -72,11 +76,11 @@ export class RssFeeder {
                 if (await this.storage.get(item.guid)) {
                     continue
                 }
-                result = await this.client.sendMessage(this.channelId, item.title)
+                result = await this.send(item)
                 await this.storage.set(item.guid, Date.now())
             } catch (ex) {
                 this.logError(ex)
-                if (result.message_id) {
+                if (result && result.message_id) {
                     this.client.deleteMessage(this.channelId, result.message_id)
                 }
                 return this.nextTick()
@@ -88,5 +92,14 @@ export class RssFeeder {
 
     private nextTick(delay: number = 1000) {
         this.timerId = setTimeout(this.tick.bind(this), delay)
+    }
+
+    private async send(item: IRssItem): Promise<SendMessageResponse> {
+        const { body: link } = await got(`https://clck.ru/--?url=${item.link}`)
+        const content = item.contentSnippet.replace("Читать дальше →", "").replace("Читать дальше &rarr;", "")
+        const message = `*${item.title}*\n\n${content}\n${link}`
+        return this.client.sendMessage(this.channelId, message, {
+            parse_mode: "Markdown",
+        })
     }
 }
