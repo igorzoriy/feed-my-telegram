@@ -1,0 +1,12 @@
+[
+    {
+        "type": "rss",
+        "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=60",
+        "channelId": "-100123456789"
+    },
+    {
+        "type": "rss",
+        "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=30",
+        "channelId": "-100123456789"
+    }
+]
