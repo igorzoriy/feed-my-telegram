@@ -4,7 +4,7 @@
   "private": true,
   "description": "This service checks RSS/Facebook/Twitter sources and publish new entities to Telegram",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "start": "ts-node src/index.ts",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
