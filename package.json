@@ -10,10 +10,7 @@
   },
   "author": "Igor Zoriy <me@igorzoriy.com>",
   "license": "ISC",
-  "devDependencies": {
-    "ts-node": "^7.0.1",
-    "typescript": "^3.2.2"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@keyv/sqlite": "^2.0.0",
     "@types/keyv": "^3.1.0",
@@ -22,7 +19,9 @@
     "keyv": "^3.1.0",
     "messaging-api-telegram": "^0.7.11",
     "rss-parser": "^3.5.4",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
+    "typescript": "^3.2.2",
     "winston": "^3.1.0"
   }
 }
