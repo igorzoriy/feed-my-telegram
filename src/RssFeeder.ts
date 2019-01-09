@@ -1,8 +1,8 @@
-import * as got from "got"
 import * as Keyv from "keyv"
 import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
 import { Logger } from "winston"
+import { getShortLink } from "./utils"
 
 interface IRssItem {
     title: string
@@ -95,9 +95,8 @@ export class RssFeeder {
     }
 
     private async send(item: IRssItem): Promise<SendMessageResponse> {
-        const { body: link } = await got(`https://clck.ru/--?url=${item.link}`)
-        const content = item.contentSnippet.replace("Читать дальше →", "").replace("Читать дальше &rarr;", "")
-        const message = `*${item.title}*\n\n${content}\n${link}`
+        const link = await getShortLink(item.link)
+        const message = `*${item.title}*\n${link}`
         return this.client.sendMessage(this.channelId, message, {
             parse_mode: "Markdown",
         })
