@@ -24,10 +24,11 @@ import { getJsonFromUrl } from "./utils"
     const storage = new Keyv("sqlite://./storage.sqlite")
     storage.on("error", (err) => logger.error(err))
 
+    let feeders: RssFeeder[] = []
     try {
         const client = TelegramClient.connect(process.env.TELEGRAM_ACCESS_TOKEN)
         const sources = await getJsonFromUrl(process.env.SOURCES_URL)
-        sources.forEach((item) => {
+        feeders = sources.map((item) => {
             const feeder = new RssFeeder({
                 channelId: item.channelId,
                 client,
@@ -36,9 +37,17 @@ import { getJsonFromUrl } from "./utils"
                 uri: item.uri,
             })
             feeder.start()
+            return feeder
         })
     } catch (ex) {
         logger.error(`Application - ${ex}`)
     }
-})()
 
+    const shutdown = () => {
+        feeders.forEach((feeder) => feeder.stop())
+        process.exit(0)
+    }
+
+    process.on("SIGINT", shutdown)
+    process.on("SIGTERM", shutdown)
+})()
