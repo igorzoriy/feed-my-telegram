@@ -1,7 +1,6 @@
-import * as Keyv from "keyv"
-import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
+import { SendMessageResponse } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
-import { Logger } from "winston"
+import { Feeder, IFeederArgs } from "./Feeder"
 import { getShortLink } from "./utils"
 
 interface IRssItem {
@@ -12,60 +11,39 @@ interface IRssItem {
     link: string
 }
 
-export class RssFeeder {
-    private ERROR_DELAY = 60000
+interface IRssFeederArgs extends IFeederArgs {
+    uri: string,
+}
 
-    private channelId: string
-    private client: TelegramClient
-    private logger: Logger
+export class RssFeeder extends Feeder {
+    protected name = "RssFeeder"
     private parser
-    private storage: Keyv
-    private timerId: NodeJS.Timer
     private uri: string
 
-    constructor({
-        uri,
-        client,
-        channelId,
-        logger,
-        storage,
-    }: {
-        uri: string,
-        client: TelegramClient,
-        channelId: string,
-        logger: Logger,
-        storage: Keyv,
-    }) {
-        this.uri = uri
-        this.client = client
-        this.channelId = channelId
-        this.logger = logger
-        this.storage = storage
+    constructor(args: IRssFeederArgs) {
+        super(args)
+        this.uri = args.uri
         this.parser = new Parser()
     }
 
-    public async start() {
-        this.logger.info(`RssFeeder - start with uri: ${this.uri}`)
-        this.tick()
+    public start() {
+        super.start()
+        this.logger.info(`${this.name} - uri: ${this.uri}`)
     }
 
     public stop() {
-        clearInterval(this.timerId)
-        this.logger.info(`RssFeeder - stop`)
+        super.stop()
+        this.logger.info(`${this.name} - uri: ${this.uri}`)
     }
 
-    private logError(message: string) {
-        this.logger.error(`RssFeeder - ${message}`)
-    }
-
-    private async tick() {
+    protected async tick() {
         let items: IRssItem[]
         try {
             const feed = await this.parser.parseURL(this.uri)
             items = feed.items
         } catch (ex) {
-            this.logError(`${ex} - ${this.uri}`)
-            return this.nextTick(this.ERROR_DELAY)
+            this.logError(ex)
+            return this.nextTick()
         }
 
         for (let i = items.length - 1; i >= 0; i--) {
@@ -81,7 +59,7 @@ export class RssFeeder {
             } catch (ex) {
                 this.logError(ex)
                 if (result && result.message_id) {
-                    this.client.deleteMessage(this.channelId, result.message_id)
+                    this.telegramClient.deleteMessage(this.channelId, result.message_id)
                 }
                 return this.nextTick()
             }
@@ -90,14 +68,10 @@ export class RssFeeder {
         this.nextTick()
     }
 
-    private nextTick(delay: number = 1000) {
-        this.timerId = setTimeout(this.tick.bind(this), delay)
-    }
-
     private async send(item: IRssItem): Promise<SendMessageResponse> {
         const link = await getShortLink(item.link)
         const message = `*${item.title}*\n${link}`
-        return this.client.sendMessage(this.channelId, message, {
+        return this.telegramClient.sendMessage(this.channelId, message, {
             parse_mode: "Markdown",
         })
     }

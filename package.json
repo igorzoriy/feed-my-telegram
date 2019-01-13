@@ -14,6 +14,7 @@
   "dependencies": {
     "@keyv/sqlite": "^2.0.0",
     "@types/keyv": "^3.1.0",
+    "@types/twitter": "^1.7.0",
     "dotenv-extended": "^2.3.0",
     "got": "^9.5.0",
     "keyv": "^3.1.0",
@@ -21,6 +22,7 @@
     "rss-parser": "^3.5.4",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
+    "twitter": "^1.7.1",
     "typescript": "^3.2.2",
     "winston": "^3.1.0"
   }
