@@ -1,7 +1,6 @@
 import { SendMessageResponse } from "messaging-api-telegram"
 import * as Twitter from "twitter"
 import { Feeder, IFeederArgs } from "./Feeder"
-import { getShortLink } from "./utils"
 
 interface ITweet {
     id_str: string,
@@ -59,7 +58,8 @@ export class TwitterFeeder extends Feeder {
                 if (await this.storage.get(link)) {
                     continue
                 }
-                result = await this.send(item)
+                const message = `https://twitter.com/${this.screenName}/status/${item.id_str}`
+                result = await this.send(message)
                 await this.storage.set(link, Date.now())
             } catch (ex) {
                 this.logError(ex)
@@ -71,14 +71,5 @@ export class TwitterFeeder extends Feeder {
         }
 
         this.nextTick()
-    }
-
-    private async send(item: ITweet): Promise<SendMessageResponse> {
-        const link = `https://twitter.com/${this.screenName}/status/${item.id_str}`
-        link = await getShortLink(link)
-        const message = `*${item.text}*\n${link}`
-        return this.telegramClient.sendMessage(this.channelId, message, {
-            parse_mode: "Markdown",
-        })
     }
 }

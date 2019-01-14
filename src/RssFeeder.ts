@@ -54,7 +54,9 @@ export class RssFeeder extends Feeder {
                 if (await this.storage.get(item.guid)) {
                     continue
                 }
-                result = await this.send(item)
+                const link = await getShortLink(item.link)
+                const message = `*${item.title}*\n${link}`
+                result = await this.send(message)
                 await this.storage.set(item.guid, Date.now())
             } catch (ex) {
                 this.logError(ex)
@@ -66,13 +68,5 @@ export class RssFeeder extends Feeder {
         }
 
         this.nextTick()
-    }
-
-    private async send(item: IRssItem): Promise<SendMessageResponse> {
-        const link = await getShortLink(item.link)
-        const message = `*${item.title}*\n${link}`
-        return this.telegramClient.sendMessage(this.channelId, message, {
-            parse_mode: "Markdown",
-        })
     }
 }

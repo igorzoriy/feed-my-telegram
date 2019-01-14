@@ -1,5 +1,5 @@
 import * as Keyv from "keyv"
-import { TelegramClient } from "messaging-api-telegram"
+import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
 import { Logger } from "winston"
 
 export interface IFeederArgs {
@@ -48,5 +48,11 @@ export abstract class Feeder {
 
     protected logError(message: string) {
         this.logger.error(`${this.name} - ${message}`)
+    }
+
+    protected send(message: string): Promise<SendMessageResponse> {
+        return this.telegramClient.sendMessage(this.channelId, message, {
+            parse_mode: "Markdown",
+        })
     }
 }
