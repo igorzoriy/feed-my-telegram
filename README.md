@@ -16,9 +16,32 @@ You should have json file with feed sources. You can use https://gist.github.com
         "type": "rss",
         "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=30",
         "channelId": "-100123456789"
+    },
+    {
+        "type": "twitter",
+        "screenName": "nodejs",
+        "channelId": "-100123456789"
     }
 ]
 ```
 
 ## Telegram Access Token
 For getting telegram access token you should create telegram bot. More information here: https://core.telegram.org/bots#botfather
+
+
+## Development
+Create .env file for development
+```sh
+$ cp .env.defaults .env
+```
+and set env variables.
+
+## Deployment
+Create .env file for production
+```sh
+$ cp .env.defaults .env.prod
+```
+set env variables and deploy using docker
+```sh
+$ docker-compose up --build -d
+```
