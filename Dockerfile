@@ -1,11 +1,15 @@
 FROM node:10
 
-WORKDIR /home/node/app
-COPY . .
-RUN rm -rf node_modules
-RUN rm storage.sqlite
-RUN rm .env
-RUN mv .env.prod .env
+WORKDIR /app
+
+COPY ./.env.defaults /app
+
+COPY ./package.json /app
+COPY ./package-lock.json /app
+COPY ./tsconfig.json /app
+COPY ./src /app/src
+COPY ./typings /app/typings
+
 RUN npm install
 
 CMD ["npm", "start"]

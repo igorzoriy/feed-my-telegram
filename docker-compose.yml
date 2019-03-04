@@ -3,4 +3,9 @@ version: "3"
 services:
     fmt:
         build: "."
+        volumes:
+            - /var/data/fmt/data:/app/data
         restart: always
+        env_file:
+            # - .env
+            - .env.prod

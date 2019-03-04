@@ -39,7 +39,7 @@ import { getJsonFromUrl } from "./utils"
         ],
     })
 
-    const storage = new Keyv("sqlite://./storage.sqlite")
+    const storage = new Keyv("sqlite://./data/storage.sqlite")
     storage.on("error", (err) => logger.error(err))
 
     const telegramClient = TelegramClient.connect(process.env.TELEGRAM_ACCESS_TOKEN)
