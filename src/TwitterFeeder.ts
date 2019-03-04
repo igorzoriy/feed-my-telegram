@@ -14,7 +14,6 @@ interface ITwitterFeederArgs extends IFeederArgs {
 
 export class TwitterFeeder extends Feeder {
     protected name = "TwitterFeeder"
-    protected delay = 60000
 
     private screenName: string
     private twitterClient: Twitter

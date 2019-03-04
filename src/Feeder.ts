@@ -16,7 +16,7 @@ export abstract class Feeder {
     protected channelId: string
     protected telegramClient: TelegramClient
     protected timerId: NodeJS.Timer
-    protected delay = 10000
+    protected delay = 60000
 
     constructor({
         logger,
