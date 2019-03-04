@@ -37,11 +37,18 @@ $ cp .env.defaults .env
 and set env variables.
 
 ## Deployment
-Create .env file for production
+1) Set production docker machine
+```sh
+$ eval $(docker-machine env vm-common)
+```
+2) Create .env file for production
 ```sh
 $ cp .env.defaults .env.prod
 ```
-set env variables and deploy using docker
+
+3) Set env variables
+
+4) Deploy using docker
 ```sh
-$ docker-compose up --build -d
+$ docker-compose up --build -d fmt
 ```
