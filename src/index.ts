@@ -7,6 +7,8 @@ import { Feeder } from "./Feeder"
 import { RssFeeder } from "./RssFeeder"
 import { TwitterFeeder } from "./TwitterFeeder"
 import { getJsonFromUrl } from "./utils"
+import { YoutubeClient } from "./YoutubeClient"
+import { YoutubeFeeder } from "./YoutubeFeeder"
 
 (async () => {
     dotenv.load()
@@ -49,6 +51,7 @@ import { getJsonFromUrl } from "./utils"
         consumer_key: process.env.TWITTER_CONSUMER_KEY,
         consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
     })
+    const youtubeClient = new YoutubeClient(process.env.YOUTUBE_API_KEY)
 
     feeders = sources.map((item) => {
         let feeder: Feeder
@@ -68,6 +71,15 @@ import { getJsonFromUrl } from "./utils"
                 storage,
                 telegramClient,
                 twitterClient,
+            })
+        } else if (item.type === "youtube") {
+            feeder = new YoutubeFeeder({
+                channelId: item.channelId,
+                logger,
+                storage,
+                telegramClient,
+                youtubeChannelId: item.youtubeChannelId,
+                youtubeClient,
             })
         }
         feeder.start()

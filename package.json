@@ -2,7 +2,7 @@
   "name": "feed-my-telegram",
   "version": "1.0.0",
   "private": true,
-  "description": "This service checks RSS/Facebook/Twitter sources and publish new entities to Telegram",
+  "description": "This service checks RSS/Youtube/Twitter sources and publish new entities to Telegram",
   "scripts": {
     "start": "ts-node src/index.ts",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
@@ -15,6 +15,7 @@
     "@keyv/sqlite": "^2.0.0",
     "@types/keyv": "^3.1.0",
     "@types/twitter": "^1.7.0",
+    "axios": "^0.18.0",
     "dotenv-extended": "^2.3.0",
     "got": "^9.5.0",
     "keyv": "^3.1.0",

@@ -50,9 +50,9 @@ export abstract class Feeder {
         this.logger.error(`${this.name} - ${message}`)
     }
 
-    protected send(message: string): Promise<SendMessageResponse> {
+    protected send(message: string, mode: string = ""): Promise<SendMessageResponse> {
         return this.telegramClient.sendMessage(this.channelId, message, {
-            parse_mode: "Markdown",
+            parse_mode: mode,
         })
     }
 }

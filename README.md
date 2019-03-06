@@ -1,6 +1,6 @@
 # Feed My Telegram
 
-This service checks RSS/Facebook/Twitter sources and publish new entities to Telegram.
+This service checks RSS/Youtube/Twitter sources and publish new entities to Telegram.
 
 ## Sources
 You should have json file with feed sources. You can use https://gist.github.com/ for it.
@@ -20,6 +20,11 @@ You should have json file with feed sources. You can use https://gist.github.com
     {
         "type": "twitter",
         "screenName": "nodejs",
+        "channelId": "-100123456789"
+    },
+    {
+        "type": "youtube,
+        "youtubeChannelId": "UC-lHJZR3Gqxm24_Vd_AJ5Yw",
         "channelId": "-100123456789"
     }
 ]

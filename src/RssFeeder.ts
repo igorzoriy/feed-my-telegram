@@ -56,7 +56,7 @@ export class RssFeeder extends Feeder {
                 }
                 const link = await getShortLink(item.link)
                 const message = `*${item.title}*\n${link}`
-                result = await this.send(message)
+                result = await this.send(message, "Markdown")
                 await this.storage.set(item.guid, Date.now())
             } catch (ex) {
                 this.logError(ex)
