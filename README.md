@@ -44,7 +44,7 @@ and set env variables.
 ## Deployment
 1) Set production docker machine
 ```sh
-$ eval $(docker-machine env vm-common)
+$ eval $(docker-machine env MACHINE_NAME)
 ```
 2) Create .env file for production
 ```sh

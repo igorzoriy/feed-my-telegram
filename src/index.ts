@@ -2,8 +2,8 @@ import * as dotenv from "dotenv-extended"
 import * as Keyv from "keyv"
 import { TelegramClient } from "messaging-api-telegram"
 import * as Twitter from "twitter"
-import { createLogger, format, transports } from "winston"
 import { Feeder } from "./Feeder"
+import { getLogger } from "./logger"
 import { RssFeeder } from "./RssFeeder"
 import { TwitterFeeder } from "./TwitterFeeder"
 import { getJsonFromUrl } from "./utils"
@@ -14,6 +14,7 @@ import { YoutubeFeeder } from "./YoutubeFeeder"
     dotenv.load()
 
     let feeders: Feeder[] = []
+    const logger = getLogger()
 
     const shutdown = () => {
         feeders.forEach((feeder) => feeder.stop())
@@ -26,20 +27,13 @@ import { YoutubeFeeder } from "./YoutubeFeeder"
         logger.error(`Application - ${ex}`)
     })
 
-    const sources = await getJsonFromUrl(process.env.SOURCES_URL)
-
-    const { combine, printf, timestamp, colorize } = format
-    const pretty = printf((data) => `${data.timestamp} ${data.level}: ${data.message}`)
-    const logger = createLogger({
-        format: combine(
-            timestamp(),
-            colorize({ all: true }),
-            pretty,
-        ),
-        transports: [
-            new transports.Console(),
-        ],
-    })
+    let sources = []
+    try {
+        sources = await getJsonFromUrl(process.env.SOURCES_URL)
+    } catch (ex) {
+        logger.error(`Application - ${ex}`)
+        process.exit()
+    }
 
     const storage = new Keyv("sqlite://./data/storage.sqlite")
     storage.on("error", (err) => logger.error(err))
