@@ -1,4 +1,3 @@
-import { SendMessageResponse } from "messaging-api-telegram"
 import * as Parser from "rss-parser"
 import { Feeder, IFeederArgs } from "./Feeder"
 import { getShortLink } from "./utils"
@@ -16,12 +15,13 @@ interface IRssFeederArgs extends IFeederArgs {
 }
 
 export class RssFeeder extends Feeder {
-    protected name = "RssFeeder"
     private parser
     private uri: string
 
     constructor(args: IRssFeederArgs) {
         super(args)
+        this.name = "RssFeeder"
+        this.delay = 1000 * 60 // 1 min
         this.uri = args.uri
         this.parser = new Parser()
     }
@@ -47,24 +47,12 @@ export class RssFeeder extends Feeder {
         }
 
         for (let i = items.length - 1; i >= 0; i--) {
-            const item = items[i]
-            let result: SendMessageResponse
-
-            try {
-                if (await this.storage.get(item.guid)) {
-                    continue
-                }
-                const link = await getShortLink(item.link)
-                const message = `*${item.title}*\n${link}`
-                result = await this.send(message, "Markdown")
-                await this.storage.set(item.guid, Date.now())
-            } catch (ex) {
-                this.logError(ex)
-                if (result && result.message_id) {
-                    this.telegramClient.deleteMessage(this.channelId, result.message_id)
-                }
-                return this.nextTick()
+            const { guid: id, title, link } = items[i]
+            if (await this.hasBeenSent(id)) {
+                continue
             }
+            const shortLink = await getShortLink(link)
+            await this.send(id, `*${title}*\n${shortLink}`, "Markdown")
         }
 
         this.nextTick()

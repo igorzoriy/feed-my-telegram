@@ -1,4 +1,3 @@
-import { SendMessageResponse } from "messaging-api-telegram"
 import * as Twitter from "twitter"
 import { Feeder, IFeederArgs } from "./Feeder"
 
@@ -13,13 +12,13 @@ interface ITwitterFeederArgs extends IFeederArgs {
 }
 
 export class TwitterFeeder extends Feeder {
-    protected name = "TwitterFeeder"
-
     private screenName: string
     private twitterClient: Twitter
 
     constructor(args: ITwitterFeederArgs) {
         super(args)
+        this.name = "TwitterFeeder"
+        this.delay = 1000 * 60 // 1 min
         this.screenName = args.screenName
         this.twitterClient = args.twitterClient
     }
@@ -49,24 +48,12 @@ export class TwitterFeeder extends Feeder {
         }
 
         for (let i = tweets.length - 1; i >= 0; i--) {
-            const item = tweets[i]
-            const link = `https://twitter.com/${this.screenName}/status/${item.id_str}`
-            let result: SendMessageResponse
-
-            try {
-                if (await this.storage.get(link)) {
-                    continue
-                }
-                const message = `https://twitter.com/${this.screenName}/status/${item.id_str}`
-                result = await this.send(message)
-                await this.storage.set(link, Date.now())
-            } catch (ex) {
-                this.logError(ex)
-                if (result && result.message_id) {
-                    this.telegramClient.deleteMessage(this.channelId, result.message_id)
-                }
-                return this.nextTick()
+            const { id_str: id } = tweets[i]
+            const link = `https://twitter.com/${this.screenName}/status/${id}`
+            if (await this.hasBeenSent(link)) {
+                continue
             }
+            await this.send(link, link)
         }
 
         this.nextTick()

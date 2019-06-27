@@ -16,7 +16,7 @@ export abstract class Feeder {
     protected channelId: string
     protected telegramClient: TelegramClient
     protected timerId: NodeJS.Timer
-    protected delay = 60000
+    protected delay: number
 
     constructor({
         logger,
@@ -46,13 +46,30 @@ export abstract class Feeder {
         this.timerId = setTimeout(this.tick.bind(this), this.delay)
     }
 
-    protected logError(message: string) {
-        this.logger.error(`${this.name} - ${message}`)
+    protected async hasBeenSent(id: string): Promise<boolean> {
+        return this.storage.get(id)
     }
 
-    protected send(message: string, mode: string = ""): Promise<SendMessageResponse> {
-        return this.telegramClient.sendMessage(this.channelId, message, {
-            parse_mode: mode,
-        })
+    protected async send(id: string, message: string, mode: string = "") {
+        let result: SendMessageResponse
+        try {
+            result = await this.telegramClient.sendMessage(this.channelId, message, {
+                parse_mode: mode,
+            })
+        } catch (ex) {
+            this.logError(`${ex.message} - ${message}`)
+            return
+        }
+
+        try {
+            await this.storage.set(id, Date.now())
+        } catch (ex) {
+            this.logError(ex)
+            this.telegramClient.deleteMessage(this.channelId, result.message_id)
+        }
+    }
+
+    protected logError(message: string) {
+        this.logger.error(`${this.name} - ${message}`)
     }
 }
