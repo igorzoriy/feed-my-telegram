@@ -42,7 +42,7 @@ export class RssFeeder extends Feeder {
             const feed = await this.parser.parseURL(this.uri)
             items = feed.items
         } catch (ex) {
-            this.logError(ex)
+            this.logError(`${ex.message} - ${this.uri}`)
             return this.nextTick()
         }
 
