@@ -1,18 +1,18 @@
 import axios from "axios"
 
 interface IChannel {
-    id: string,
-    uploads: string,
-    title: string,
-    description: string,
+    id: string
+    uploads: string
+    title: string
+    description: string
 }
 
 export interface IVideo {
-    id: string,
-    title: string,
-    description: string,
-    url: string,
-    shortUrl: string,
+    id: string
+    title: string
+    description: string
+    url: string
+    shortUrl: string
 }
 
 export class YoutubeClient {

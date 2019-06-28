@@ -2,13 +2,13 @@ import * as Twitter from "twitter"
 import { Feeder, IFeederArgs } from "./Feeder"
 
 interface ITweet {
-    id_str: string,
-    text: string,
+    id_str: string
+    text: string
 }
 
 interface ITwitterFeederArgs extends IFeederArgs {
-    screenName: string,
-    twitterClient: Twitter,
+    screenName: string
+    twitterClient: Twitter
 }
 
 export class TwitterFeeder extends Feeder {

@@ -3,10 +3,10 @@ import { SendMessageResponse, TelegramClient } from "messaging-api-telegram"
 import { Logger } from "winston"
 
 export interface IFeederArgs {
-    logger: Logger,
-    storage: Keyv,
-    channelId: string,
-    telegramClient: TelegramClient,
+    logger: Logger
+    storage: Keyv
+    channelId: string
+    telegramClient: TelegramClient
 }
 
 export abstract class Feeder {

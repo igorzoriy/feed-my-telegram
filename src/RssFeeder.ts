@@ -11,7 +11,7 @@ interface IRssItem {
 }
 
 interface IRssFeederArgs extends IFeederArgs {
-    uri: string,
+    uri: string
 }
 
 export class RssFeeder extends Feeder {

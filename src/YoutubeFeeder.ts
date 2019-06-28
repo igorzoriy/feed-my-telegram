@@ -2,8 +2,8 @@ import { Feeder, IFeederArgs } from "./Feeder"
 import { IVideo, YoutubeClient } from "./YoutubeClient"
 
 interface IYoutubeFeederArgs extends IFeederArgs {
-    youtubeClient: YoutubeClient,
-    youtubeChannelId: string,
+    youtubeClient: YoutubeClient
+    youtubeChannelId: string
 }
 
 export class YoutubeFeeder extends Feeder {
