@@ -47,12 +47,14 @@ export class RssFeeder extends Feeder {
         }
 
         for (let i = items.length - 1; i >= 0; i--) {
-            const { guid: id, title, link } = items[i]
+            let id: string
+            const { guid = null, title, link } = items[i]
+            id = guid !== null ? guid : link
             if (await this.hasBeenSent(id)) {
                 continue
             }
             const shortLink = await getShortLink(link)
-            await this.send(id, `*${title}*\n${shortLink}`, "Markdown")
+            await this.send(id, `<b>${title}</b>\n${shortLink}`, "HTML")
         }
 
         this.nextTick()
