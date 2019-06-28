@@ -15,7 +15,7 @@
     "@keyv/sqlite": "https://github.com/lukechilds/keyv-sqlite#6280ac8d7905bddb1663924590408a633173e993",
     "@types/keyv": "^3.1.0",
     "@types/twitter": "^1.7.0",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "dotenv-extended": "^2.3.0",
     "got": "^9.6.0",
     "keyv": "^3.1.0",
