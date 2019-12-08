@@ -8,23 +8,23 @@ You should have json file with feed sources. You can use https://gist.github.com
 ```
 [
     {
-        "type": "rss",
-        "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=60",
+        "type": "RSS",
+        "identifier": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=60",
         "channelId": "-100123456789"
     },
     {
-        "type": "rss",
-        "uri": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=30",
+        "type": "RSS",
+        "identifier": "http://lorem-rss.herokuapp.com/feed?unit=second&interval=30",
         "channelId": "-100123456789"
     },
     {
-        "type": "twitter",
-        "screenName": "nodejs",
+        "type": "Twitter",
+        "identifier": "nodejs",
         "channelId": "-100123456789"
     },
     {
-        "type": "youtube,
-        "youtubeChannelId": "UC-lHJZR3Gqxm24_Vd_AJ5Yw",
+        "type": "Youtube,
+        "identifier": "UC-lHJZR3Gqxm24_Vd_AJ5Yw",
         "channelId": "-100123456789"
     }
 ]

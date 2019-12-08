@@ -1,23 +1,25 @@
 import * as dotenv from "dotenv-extended"
 import * as Keyv from "keyv"
 import { TelegramClient } from "messaging-api-telegram"
+import * as RssParser from "rss-parser"
 import * as Twitter from "twitter"
-import { Feeder } from "./Feeder"
 import { getLogger } from "./logger"
-import { RssFeeder } from "./RssFeeder"
-import { TwitterFeeder } from "./TwitterFeeder"
+import { rssTask } from "./rss"
+import { start } from "./scheduler"
+import { ISource, SourceDelays, SourceTypes } from "./sources"
+import { twitterTask } from "./twitter"
 import { getJsonFromUrl } from "./utils"
+import { youtubeTask } from "./youtube"
 import { YoutubeClient } from "./YoutubeClient"
-import { YoutubeFeeder } from "./YoutubeFeeder"
 
 (async () => {
     dotenv.load()
 
-    let feeders: Feeder[] = []
+    const stoppers: Array<() => void> = []
     const logger = getLogger()
 
     const shutdown = () => {
-        feeders.forEach((feeder) => feeder.stop())
+        stoppers.forEach((stop) => stop())
         process.exit(0)
     }
 
@@ -27,7 +29,7 @@ import { YoutubeFeeder } from "./YoutubeFeeder"
         logger.error(`Application - ${ex}`)
     })
 
-    let sources = []
+    let sources: ISource[] = []
     try {
         sources = await getJsonFromUrl(process.env.SOURCES_URL)
     } catch (ex) {
@@ -38,6 +40,7 @@ import { YoutubeFeeder } from "./YoutubeFeeder"
     const storage = new Keyv("sqlite://./data/storage.sqlite")
     storage.on("error", (err) => logger.error(err))
 
+    const rssParser = new RssParser()
     const telegramClient = TelegramClient.connect(process.env.TELEGRAM_ACCESS_TOKEN)
     const twitterClient = new Twitter({
         access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
@@ -47,36 +50,41 @@ import { YoutubeFeeder } from "./YoutubeFeeder"
     })
     const youtubeClient = new YoutubeClient(process.env.YOUTUBE_API_KEY)
 
-    feeders = sources.map((item) => {
-        let feeder: Feeder
-        if (item.type === "rss") {
-            feeder = new RssFeeder({
-                channelId: item.channelId,
-                logger,
-                storage,
-                telegramClient,
-                uri: item.uri,
-            })
-        } else if (item.type === "twitter") {
-            feeder = new TwitterFeeder({
-                channelId: item.channelId,
-                logger,
-                screenName: item.screenName,
-                storage,
-                telegramClient,
-                twitterClient,
-            })
-        } else if (item.type === "youtube") {
-            feeder = new YoutubeFeeder({
-                channelId: item.channelId,
-                logger,
-                storage,
-                telegramClient,
-                youtubeChannelId: item.youtubeChannelId,
-                youtubeClient,
-            })
-        }
-        feeder.start()
-        return feeder
+    sources.forEach(({ type, identifier, channelId }) => {
+        const schedulerName = `${type} Feeder (${identifier})`
+        const logError = (message) => logger.error(`${schedulerName} - ${message}`)
+        const sendMessage = telegramClient.sendMessage.bind(telegramClient, channelId)
+        const deleteMessage = telegramClient.deleteMessage.bind(telegramClient, channelId)
+
+        start(logger, schedulerName, async () => {
+            if (type === SourceTypes.RSS) {
+                await rssTask({
+                    logError,
+                    uri: identifier,
+                    parser: rssParser,
+                    storage,
+                    sendMessage,
+                    deleteMessage,
+                })
+            } else if (type === SourceTypes.Twitter) {
+                await twitterTask({
+                    logError,
+                    screenName: identifier,
+                    twitterClient,
+                    storage,
+                    sendMessage,
+                    deleteMessage,
+                })
+            } else if (type === SourceTypes.Youtube) {
+                await youtubeTask({
+                    logError,
+                    youtubeChannelId: identifier,
+                    youtubeClient,
+                    storage,
+                    sendMessage,
+                    deleteMessage,
+                })
+            }
+        }, SourceDelays[type]).then((stop) => stoppers.push(stop))
     })
 })()
