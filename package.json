@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {},
   "dependencies": {
-    "@keyv/sqlite": "https://github.com/lukechilds/keyv-sqlite#6280ac8d7905bddb1663924590408a633173e993",
+    "@keyv/sqlite": "^2.0.2",
     "@types/keyv": "^3.1.0",
     "@types/twitter": "^1.7.0",
     "axios": "^0.19.0",
