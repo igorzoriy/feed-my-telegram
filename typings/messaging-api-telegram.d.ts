@@ -19,6 +19,6 @@ declare module "messaging-api-telegram" {
     export class TelegramClient {
         static connect(accessTokenOrConfig: string | ClientConfig): TelegramClient
         sendMessage(chatId: string, text: string, options?: Object): Promise<SendMessageResponse>
-        deleteMessage(chatId: string, messageId: number|string)
+        deleteMessage(chatId: string, messageId: number|string): void
     }
 }
