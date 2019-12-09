@@ -1,53 +1,63 @@
-import * as Keyv from "keyv"
-import { SendMessageResponse } from "messaging-api-telegram"
-import { hasBeenSent } from "./utils"
-import { IVideo, YoutubeClient } from "./YoutubeClient"
+import axios from "axios"
+import { IFeedItem, ParseModes } from "./feeder"
 
-interface IYoutubeTaskArgs {
-    youtubeChannelId: string
-    youtubeClient: YoutubeClient
-    logError: (message: string) => void
-    storage: Keyv
-    sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>
-    deleteMessage: (messageId: number | string) => Promise<void>
+interface IChannel {
+    id: string
+    uploads: string
+    title: string
+    description: string
 }
 
-export const youtubeTask = async ({
-    logError,
-    youtubeChannelId,
-    youtubeClient,
-    storage,
-    sendMessage,
-    deleteMessage,
-}: IYoutubeTaskArgs) => {
-    let items: IVideo[] = []
-    try {
-        const channel = await youtubeClient.getChannel(youtubeChannelId)
-        items = await youtubeClient.getPlaylistVideos(channel.uploads) as IVideo[]
-    } catch (ex) {
-        logError(ex.message)
-        return
+interface IVideo {
+    id: string
+    title: string
+    description: string
+    url: string
+    shortUrl: string
+}
+
+const getChannel = async (apiKey: string, channelId: string): Promise<IChannel> => {
+    const url = "https://www.googleapis.com/youtube/v3/channels?" +
+        `part=contentDetails,snippet&id=${channelId}&key=${apiKey}`
+    const { data: { items = [] } } = await axios.get(url)
+    if (items.length !== 1) {
+        throw new Error("Channel not found.")
+    }
+    const item = items[0]
+
+    return {
+        id: item.id,
+        title: item.snippet.title,
+        description: item.snippet.description,
+        uploads: item.contentDetails.relatedPlaylists.uploads,
+    }
+}
+
+const getPlaylistVideos = async (apiKey: string, playlistId: string): Promise<IVideo[]> => {
+    const url = "https://www.googleapis.com/youtube/v3/playlistItems?" +
+        `part=snippet&maxResults=10&playlistId=${playlistId}&key=${apiKey}`
+    const { data: { items } } = await axios.get(url)
+    const videos: IVideo[] = []
+    for (const item of items) {
+        const { videoId } = item.snippet.resourceId
+        videos.push({
+            id: videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            url: `https://www.youtube.com/watch?v=${videoId}`,
+            shortUrl: `https://youtu.be/${videoId}`,
+        })
     }
 
-    for (let i = items.length - 1; i >= 0; i--) {
-        const { url: id, title } = items[i]
-        const message = `<b>${title}</b>\n${id}`
+    return videos
+}
 
-        if (await hasBeenSent(storage, id)) {
-            continue
-        }
-
-        let result: SendMessageResponse
-        try {
-            result = await sendMessage(message, {
-                parse_mode: "HTML",
-            })
-            await storage.set(id, Date.now())
-        } catch (ex) {
-            logError(`${ex.message} - ${id}`)
-            if (result && result.message_id) {
-                deleteMessage(result.message_id)
-            }
-        }
-    }
+export const getYoutubeItems = async (apiKey: string, channelId: string): Promise<IFeedItem[]> => {
+    const channel = await getChannel(apiKey, channelId)
+    const items = await getPlaylistVideos(apiKey, channel.uploads)
+    return items.map(({ id, title, shortUrl }) => ({
+        id,
+        message: `<b>${title}</b>\n${shortUrl}`,
+        mode: ParseModes.HTML,
+    }))
 }
