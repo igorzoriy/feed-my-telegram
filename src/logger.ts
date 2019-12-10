@@ -6,7 +6,7 @@ const pretty = printf((data) => `${data.timestamp} ${data.level}: ${data.message
 export const getLogger = (): Logger => {
     return createLogger({
         format: combine(
-            timestamp(),
+            timestamp({ format: "YYYY-MM-DD hh:mm:ss" }),
             colorize({ all: true }),
             pretty,
         ),

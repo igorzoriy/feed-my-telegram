@@ -12,10 +12,6 @@ export interface IFeedItem {
     mode: ParseModes
 }
 
-const hasBeenSent = async (storage: Keyv, id: string): Promise<boolean> => {
-    return storage.get(id)
-}
-
 export type getItemsCallback = () => Promise<IFeedItem[]>
 
 interface ITaskArgs {
@@ -38,7 +34,7 @@ export const feederTask = async ({ getItems, logError, storage, sendMessage, del
     for (const item of items) {
         const { id, message, mode } = item
 
-        if (await hasBeenSent(storage, id)) {
+        if (await storage.get(id)) {
             continue
         }
 
