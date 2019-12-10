@@ -1,13 +1,11 @@
-import * as got from "got"
+import axios from "axios"
 
 export const getShortLink = async (link: string) => {
-    const { body } = await got(`https://clck.ru/--?url=${link}`)
-    return body.length <= 30 ? body : link
+    const { data } = await axios.get(`https://clck.ru/--?url=${link}`)
+    return data.length <= 30 ? data : link
 }
 
 export const getJsonFromUrl = async (url: string) => {
-    const { body } = await got(url, {
-        json: true,
-    })
-    return body
+    const { data } = await axios.get(url)
+    return data
 }
