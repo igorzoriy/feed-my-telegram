@@ -1,17 +1,21 @@
-import { Logger } from "winston"
+type startFn = (
+    logInfo: (message: string) => void,
+    task: () => Promise<void>,
+    interval: number,
+) => Promise<() => void>
 
-export const start = async (logger: Logger, name: string, task: () => Promise<void>, interval: number) => {
+export const start: startFn = async (logInfo, task, interval) => {
     let timerId: NodeJS.Timeout
     const next = async () => {
         await task()
         timerId = setTimeout(next, interval)
     }
 
-    logger.info(`${name} - start`)
+    logInfo("start")
     await next()
 
     return () => {
         clearInterval(timerId)
-        logger.info(`${name} - stop`)
+        logInfo("stop")
     }
 }

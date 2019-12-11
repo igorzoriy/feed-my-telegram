@@ -2,7 +2,7 @@ import * as dotenv from "dotenv-extended"
 import * as Keyv from "keyv"
 import { TelegramClient } from "messaging-api-telegram"
 import * as Twitter from "twitter"
-import { feederTask, getItemsCallback } from "./feeder"
+import { feederTask } from "./feeder"
 import { getLogger } from "./logger"
 import { getRssItems } from "./rss"
 import { start } from "./scheduler"
@@ -14,7 +14,7 @@ import { getYoutubeItems } from "./youtube"
 (async () => {
     dotenv.load()
 
-    const stoppers: Array<() => void> = []
+    let stoppers: Array<() => void> = []
     const logger = getLogger()
 
     const shutdown = () => {
@@ -47,12 +47,13 @@ import { getYoutubeItems } from "./youtube"
         consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
     })
 
-    sources.forEach(({ type, identifier, channelId }) => {
+    stoppers = await Promise.all(sources.map(async ({ type, identifier, channelId }) => {
         const schedulerName = `${type} Feeder (${identifier})`
-        const logError = (message) => logger.error(`${schedulerName} - ${message}`)
+        const logInfo = (message: string) => logger.info(`${schedulerName} - ${message}`)
+        const logError = (message: string) => logger.error(`${schedulerName} - ${message}`)
         const sendMessage = telegramClient.sendMessage.bind(telegramClient, channelId)
         const deleteMessage = telegramClient.deleteMessage.bind(telegramClient, channelId)
-        let getItems: getItemsCallback
+        let getItems
         if (type === SourceTypes.RSS) {
             getItems = getRssItems.bind(null, identifier)
         } else if (type === SourceTypes.Twitter) {
@@ -61,7 +62,7 @@ import { getYoutubeItems } from "./youtube"
             getItems = getYoutubeItems.bind(null, process.env.YOUTUBE_API_KEY, identifier)
         }
 
-        start(logger, schedulerName, async () => {
+        return start(logInfo, async () => {
             await feederTask({
                 logError,
                 getItems,
@@ -69,6 +70,6 @@ import { getYoutubeItems } from "./youtube"
                 sendMessage,
                 deleteMessage,
             })
-        }, SourceDelays[type]).then((stop) => stoppers.push(stop))
-    })
+        }, SourceDelays[type])
+    }))
 })()

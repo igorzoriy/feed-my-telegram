@@ -12,17 +12,17 @@ export interface IFeedItem {
     mode: ParseModes
 }
 
-export type getItemsCallback = () => Promise<IFeedItem[]>
-
 interface ITaskArgs {
     logError: (message: string) => void
-    getItems: getItemsCallback
+    getItems: () => Promise <IFeedItem[]>
     storage: Keyv
     sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>
     deleteMessage: (messageId: number | string) => Promise<void>
 }
 
-export const feederTask = async ({ getItems, logError, storage, sendMessage, deleteMessage }: ITaskArgs) => {
+type feederTaskFn = (args: ITaskArgs) => Promise<void>
+
+export const feederTask: feederTaskFn = async ({ getItems, logError, storage, sendMessage, deleteMessage }) => {
     let items: IFeedItem[] = []
     try {
         items = await getItems()
