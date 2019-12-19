@@ -5,12 +5,16 @@
   "description": "This service checks RSS/Youtube/Twitter sources and publish new entities to Telegram",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Igor Zoriy <me@igorzoriy.com>",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
+    "eslint": "^6.7.2"
+  },
   "dependencies": {
     "@keyv/sqlite": "^2.0.2",
     "@types/keyv": "^3.1.0",
@@ -21,7 +25,6 @@
     "messaging-api-telegram": "^0.7.11",
     "rss-parser": "^3.5.4",
     "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
     "twitter": "^1.7.1",
     "typescript": "^3.2.2",
     "winston": "^3.1.0"

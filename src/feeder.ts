@@ -6,24 +6,24 @@ export enum ParseModes {
     Markdown = "Markdown",
 }
 
-export interface IFeedItem {
+export interface FeedItem {
     id: string
     message: string
     mode: ParseModes
 }
 
-interface ITaskArgs {
+interface TaskArgs {
     logError: (message: string) => void
-    getItems: () => Promise <IFeedItem[]>
+    getItems: () => Promise <FeedItem[]>
     storage: Keyv
     sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>
     deleteMessage: (messageId: number | string) => Promise<void>
 }
 
-type feederTaskFn = (args: ITaskArgs) => Promise<void>
+type feederTaskFn = (args: TaskArgs) => Promise<void>
 
 export const feederTask: feederTaskFn = async ({ getItems, logError, storage, sendMessage, deleteMessage }) => {
-    let items: IFeedItem[] = []
+    let items: FeedItem[] = []
     try {
         items = await getItems()
     } catch (ex) {
@@ -41,7 +41,7 @@ export const feederTask: feederTaskFn = async ({ getItems, logError, storage, se
         let result: SendMessageResponse
         try {
             result = await sendMessage(message, {
-                parse_mode: mode,
+                parse_mode: mode, // eslint-disable-line @typescript-eslint/camelcase
             })
             await storage.set(id, Date.now())
         } catch (ex) {
