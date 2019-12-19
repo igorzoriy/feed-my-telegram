@@ -6,7 +6,7 @@ type startFn = (
 
 export const start: startFn = async (logInfo, task, interval) => {
     let timerId: NodeJS.Timeout
-    const next = async () => {
+    const next = async (): Promise<void> => {
         await task()
         timerId = setTimeout(next, interval)
     }
@@ -14,7 +14,7 @@ export const start: startFn = async (logInfo, task, interval) => {
     logInfo("start")
     await next()
 
-    return () => {
+    return (): void => {
         clearInterval(timerId)
         logInfo("stop")
     }

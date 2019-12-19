@@ -1,14 +1,14 @@
 import axios from "axios"
-import { IFeedItem, ParseModes } from "./feeder"
+import { FeedItem, ParseModes } from "./feeder"
 
-interface IChannel {
+interface Channel {
     id: string
     uploads: string
     title: string
     description: string
 }
 
-interface IVideo {
+interface Video {
     id: string
     title: string
     description: string
@@ -16,7 +16,7 @@ interface IVideo {
     shortUrl: string
 }
 
-const getChannel = async (apiKey: string, channelId: string): Promise<IChannel> => {
+const getChannel = async (apiKey: string, channelId: string): Promise<Channel> => {
     const url = "https://www.googleapis.com/youtube/v3/channels?" +
         `part=contentDetails,snippet&id=${channelId}&key=${apiKey}`
     const { data: { items = [] } } = await axios.get(url)
@@ -33,11 +33,11 @@ const getChannel = async (apiKey: string, channelId: string): Promise<IChannel> 
     }
 }
 
-const getPlaylistVideos = async (apiKey: string, playlistId: string): Promise<IVideo[]> => {
+const getPlaylistVideos = async (apiKey: string, playlistId: string): Promise<Video[]> => {
     const url = "https://www.googleapis.com/youtube/v3/playlistItems?" +
         `part=snippet&maxResults=10&playlistId=${playlistId}&key=${apiKey}`
     const { data: { items } } = await axios.get(url)
-    const videos: IVideo[] = []
+    const videos: Video[] = []
     for (const item of items) {
         const { videoId } = item.snippet.resourceId
         videos.push({
@@ -52,7 +52,7 @@ const getPlaylistVideos = async (apiKey: string, playlistId: string): Promise<IV
     return videos
 }
 
-export const getYoutubeItems = async (apiKey: string, channelId: string): Promise<IFeedItem[]> => {
+export const getYoutubeItems = async (apiKey: string, channelId: string): Promise<FeedItem[]> => {
     const channel = await getChannel(apiKey, channelId)
     const items = await getPlaylistVideos(apiKey, channel.uploads)
     return items.map(({ id, title, shortUrl }) => ({

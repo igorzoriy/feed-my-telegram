@@ -4,7 +4,7 @@ export enum SourceTypes {
     Youtube = "Youtube",
 }
 
-export interface ISource {
+export interface Source {
     type: SourceTypes
     identifier: string
     channelId: string

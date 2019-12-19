@@ -6,18 +6,18 @@ import { feederTask } from "./feeder"
 import { getLogger } from "./logger"
 import { getRssItems } from "./rss"
 import { start } from "./scheduler"
-import { ISource, SourceDelays, SourceTypes } from "./sources"
+import { Source, SourceDelays, SourceTypes } from "./sources"
 import { getTwitterItems } from "./twitter"
 import { getJsonFromUrl } from "./utils"
 import { getYoutubeItems } from "./youtube"
 
-(async () => {
+(async (): Promise<void> => {
     dotenv.load()
 
     let stoppers: Array<() => void> = []
     const logger = getLogger()
 
-    const shutdown = () => {
+    const shutdown = (): void => {
         stoppers.forEach((stop) => stop())
         process.exit(0)
     }
@@ -28,9 +28,9 @@ import { getYoutubeItems } from "./youtube"
         logger.error(`Application - ${ex}`)
     })
 
-    let sources: ISource[] = []
+    let sources: Source[] = []
     try {
-        sources = await getJsonFromUrl(process.env.SOURCES_URL)
+        sources = await getJsonFromUrl(process.env.SOURCES_URL) as Source[]
     } catch (ex) {
         logger.error(`Application - ${ex}`)
         process.exit()
@@ -41,16 +41,20 @@ import { getYoutubeItems } from "./youtube"
 
     const telegramClient = TelegramClient.connect(process.env.TELEGRAM_ACCESS_TOKEN)
     const twitterClient = new Twitter({
-        access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-        access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-        consumer_key: process.env.TWITTER_CONSUMER_KEY,
-        consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+        access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY, // eslint-disable-line @typescript-eslint/camelcase
+        access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET, // eslint-disable-line @typescript-eslint/camelcase
+        consumer_key: process.env.TWITTER_CONSUMER_KEY, // eslint-disable-line @typescript-eslint/camelcase
+        consumer_secret: process.env.TWITTER_CONSUMER_SECRET, // eslint-disable-line @typescript-eslint/camelcase
     })
 
     stoppers = await Promise.all(sources.map(async ({ type, identifier, channelId }) => {
         const schedulerName = `${type} Feeder (${identifier})`
-        const logInfo = (message: string) => logger.info(`${schedulerName} - ${message}`)
-        const logError = (message: string) => logger.error(`${schedulerName} - ${message}`)
+        const logInfo = (message: string): void => {
+            logger.info(`${schedulerName} - ${message}`)
+        }
+        const logError = (message: string): void => {
+            logger.error(`${schedulerName} - ${message}`)
+        }
         const sendMessage = telegramClient.sendMessage.bind(telegramClient, channelId)
         const deleteMessage = telegramClient.deleteMessage.bind(telegramClient, channelId)
         let getItems

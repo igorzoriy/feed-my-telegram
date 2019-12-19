@@ -1,8 +1,8 @@
 import * as RssParser from "rss-parser"
-import { IFeedItem, ParseModes } from "./feeder"
+import { FeedItem, ParseModes } from "./feeder"
 import { getShortLink } from "./utils"
 
-interface IRssItem {
+interface RssItem {
     title: string
     content: string
     contentSnippet: string
@@ -10,10 +10,10 @@ interface IRssItem {
     link: string
 }
 
-export const getRssItems = async (uri: string): Promise<IFeedItem[]> => {
+export const getRssItems = async (uri: string): Promise<FeedItem[]> => {
     const parser = new RssParser()
     const feed = await parser.parseURL(uri)
-    const items = feed.items as IRssItem[]
+    const items = feed.items as RssItem[]
 
     return Promise.all(items.map(async ({ title, guid = null, link }) => {
         const id = guid !== null ? guid : link
