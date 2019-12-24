@@ -6,9 +6,9 @@ export enum ParseModes {
 }
 
 export interface FeedItem {
-    id: string
-    message: string
-    mode: ParseModes
+    id: string,
+    message: string,
+    mode: ParseModes,
 }
 
 export const feederTask = async ({
@@ -19,12 +19,12 @@ export const feederTask = async ({
     sendMessage,
     deleteMessage,
 }: {
-    getItems: () => Promise<FeedItem[]>
-    logError: (message: string) => void
-    markAsSent: (id: string) => Promise<void>
-    hasBeenSent: (id: string) => Promise<boolean>
-    sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>
-    deleteMessage: (messageId: number | string) => Promise<void>
+    getItems: () => Promise<FeedItem[]>,
+    logError: (message: string) => void,
+    markAsSent: (id: string) => Promise<void>,
+    hasBeenSent: (id: string) => Promise<boolean>,
+    sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>,
+    deleteMessage: (messageId: number | string) => Promise<void>,
 }): Promise<void> => {
     let items: FeedItem[] = []
     try {

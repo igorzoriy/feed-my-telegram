@@ -3,11 +3,11 @@ import { FeedItem, ParseModes } from "./feeder"
 import { getShortLink } from "./utils"
 
 interface RssItem {
-    title: string
-    content: string
-    contentSnippet: string
-    guid: string
-    link: string
+    title: string,
+    content: string,
+    contentSnippet: string,
+    guid: string,
+    link: string,
 }
 
 export const getRssItems = async (uri: string): Promise<FeedItem[]> => {

@@ -5,9 +5,9 @@ export enum SourceTypes {
 }
 
 export interface Source {
-    type: SourceTypes
-    identifier: string
-    channelId: string
+    type: SourceTypes,
+    identifier: string,
+    channelId: string,
 }
 
 export const SourceDelays = {

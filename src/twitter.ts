@@ -2,8 +2,8 @@ import * as Twitter from "twitter"
 import { FeedItem, ParseModes } from "./feeder"
 
 interface Tweet {
-    id_str: string
-    text: string
+    id_str: string,
+    text: string,
 }
 
 export const getTwitterItems = async (client: Twitter, screenName: string): Promise<FeedItem[]> => {

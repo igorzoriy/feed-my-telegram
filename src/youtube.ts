@@ -2,18 +2,18 @@ import axios from "axios"
 import { FeedItem, ParseModes } from "./feeder"
 
 interface Channel {
-    id: string
-    uploads: string
-    title: string
-    description: string
+    id: string,
+    uploads: string,
+    title: string,
+    description: string,
 }
 
 interface Video {
-    id: string
-    title: string
-    description: string
-    url: string
-    shortUrl: string
+    id: string,
+    title: string,
+    description: string,
+    url: string,
+    shortUrl: string,
 }
 
 const getChannel = async (apiKey: string, channelId: string): Promise<Channel> => {
