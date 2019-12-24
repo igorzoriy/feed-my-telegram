@@ -1,4 +1,3 @@
-import * as Keyv from "keyv"
 import { SendMessageResponse } from "messaging-api-telegram"
 
 export enum ParseModes {
@@ -12,17 +11,21 @@ export interface FeedItem {
     mode: ParseModes
 }
 
-interface TaskArgs {
+export const feederTask = async ({
+    getItems,
+    logError,
+    markAsSent,
+    hasBeenSent,
+    sendMessage,
+    deleteMessage,
+}: {
+    getItems: () => Promise<FeedItem[]>
     logError: (message: string) => void
-    getItems: () => Promise <FeedItem[]>
-    storage: Keyv
+    markAsSent: (id: string) => Promise<void>
+    hasBeenSent: (id: string) => Promise<boolean>
     sendMessage: (message: string, params: { parse_mode: string }) => Promise<SendMessageResponse>
     deleteMessage: (messageId: number | string) => Promise<void>
-}
-
-type feederTaskFn = (args: TaskArgs) => Promise<void>
-
-export const feederTask: feederTaskFn = async ({ getItems, logError, storage, sendMessage, deleteMessage }) => {
+}): Promise<void> => {
     let items: FeedItem[] = []
     try {
         items = await getItems()
@@ -34,7 +37,7 @@ export const feederTask: feederTaskFn = async ({ getItems, logError, storage, se
     for (const item of items) {
         const { id, message, mode } = item
 
-        if (await storage.get(id)) {
+        if (await hasBeenSent(id)) {
             continue
         }
 
@@ -43,7 +46,7 @@ export const feederTask: feederTaskFn = async ({ getItems, logError, storage, se
             result = await sendMessage(message, {
                 parse_mode: mode, // eslint-disable-line @typescript-eslint/camelcase
             })
-            await storage.set(id, Date.now())
+            await markAsSent(id)
         } catch (ex) {
             logError(`${ex.message} - ${id}`)
             if (result && result.message_id) {

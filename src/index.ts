@@ -7,6 +7,7 @@ import { getLogger } from "./logger"
 import { getRssItems } from "./rss"
 import { start } from "./scheduler"
 import { Source, SourceDelays, SourceTypes } from "./sources"
+import { markAsSent, hasBeenSent } from "./storage"
 import { getTwitterItems } from "./twitter"
 import { getJsonFromUrl } from "./utils"
 import { getYoutubeItems } from "./youtube"
@@ -70,7 +71,8 @@ import { getYoutubeItems } from "./youtube"
             await feederTask({
                 logError,
                 getItems,
-                storage,
+                markAsSent: markAsSent.bind(null, storage),
+                hasBeenSent: hasBeenSent.bind(null, storage),
                 sendMessage,
                 deleteMessage,
             })
